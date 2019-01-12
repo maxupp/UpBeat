@@ -2,8 +2,7 @@ FROM continuumio/miniconda3
 
 RUN pip install ffmpeg-python \
                    youtube-dl \
-                   cherrypy \
-                   pafy
+                   cherrypy
 
 RUN mkdir /upbeat
 RUN mkdir /upbeat/snippets
@@ -13,5 +12,6 @@ RUN apt update
 RUN apt install -y ffmpeg
 
 COPY main.py /upbeat/main.py
+COPY assets /upbeat/assets
 
 ENTRYPOINT ["python", "/upbeat/main.py", "-w", "/upbeat/snippets"]
