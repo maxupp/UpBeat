@@ -1,0 +1,114 @@
+<head>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+	<link rel="stylesheet" href="assets/style.css">
+	<script src="https://www.youtube.com/iframe_api"></script>
+	
+</head>
+<body>
+	<script>
+		var global_timestamp = -1;
+		var startPoint = -1;
+		var player;
+		
+		function get_id_and_time(url) {
+		  var a = url.split("v=")[1];
+		  a = a != undefined ? a : url.split("youtu.be/")[1];
+		  var id = a.split("?")[0];
+		  if (url.indexOf('t=') != -1)		  {
+				var timestamp = a.split("?t=")[1].split('&')[0];
+			}
+		  else{
+				timestamp = 0;
+			}
+		  return {
+			id: id,
+			timestamp: timestamp
+		  }
+		}
+
+		function onplayerready(event) {
+		  player.seekTo(startPoint, allowSeekAhead = true);
+		  player.pauseVideo();
+		  console.log('Loaded!');
+		  setTimeout(displayButtons, 1000);
+		}
+
+		function prepare_player(id) {
+		  console.log('Loading...');
+		  player = new YT.Player('player', {
+			height: '1',
+			width: '1',
+			videoId: id,
+			events: {
+			  'onReady': onplayerready,
+			  'onStateChange': delayed_stop
+			}
+		  });
+		}
+
+		function delayed_stop(event) {
+		  if (event.data == YT.PlayerState.PLAYING) {
+			setTimeout(function() {
+			  player.pauseVideo();
+			  player.seekTo(startPoint);
+			}, global_duration * 1000);
+		  }
+		}
+
+		function play(duration) {
+		  global_duration = duration;
+		  player.playVideo();
+		}
+		
+		function displayButtons(){			
+		  document.getElementById("loader").style.display = "none";
+		  document.getElementById("play-buttons").style.display = "block";
+		}
+		
+		$( window ).on("load", function() {			
+			const urlParams = new URLSearchParams(window.location.search);
+			const url = urlParams.get('youtube_url');
+			var r = get_id_and_time(url)
+			
+			startPoint = r.timestamp;
+			prepare_player(r.id);
+		});
+	</script>
+	<div class="bg">
+		<div class="container">
+			<div class="centered">
+				<h1 class="display-1">UpBeat Music Quiz</h1>
+				<div id="play-buttons" style="display:none;">
+					<button class="btn btn-primary mb-2" onclick='play(1)'>Play 1s</button>
+					<button class="btn btn-primary mb-2" onclick='play(2)'>Play 2s</button>
+					<button class="btn btn-primary mb-2" onclick='play(5)'>Play 5s</button>
+				</div>
+				<div id='loader' class="spinner">
+					  <div class="rect1"></div>
+					  <div class="rect2"></div>
+					  <div class="rect3"></div>
+					  <div class="rect4"></div>
+					  <div class="rect5"></div>
+				</div>
+				<br>
+				<br>
+				<form method="get" action="index.html" class="form-inline">
+					<input type="submit" value="New Game!" class="btn btn-primary mb-2">
+				</form>
+			</div>
+			
+			<div class="top-right">
+				<img src="assets/pineheart.png" style="width:100px;height:100px;">
+			</div>
+		</div>
+	</div>
+	
+	<div id="buttons" style="visibility:hidden">
+	  <button onclick=play(1)>play 1s</button>
+	  <button onclick=play(2)>play 2s</button>
+	  <button onclick=play(5)>play 5s</button>
+	</div>
+
+	<div id="player"></div>
+</body>
